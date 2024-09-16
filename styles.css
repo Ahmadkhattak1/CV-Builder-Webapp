@@ -1,0 +1,552 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2c3e50;
+  --background-color: #ecf0f1;
+  --text-color: #34495e;
+  --accent-color: #e74c3c;
+  --success-color: #2ecc71;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+header {
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: fadeInDown 1s ease-out;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh; /* Adjust this value as needed */
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+#cv-form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+#form-sections {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+#step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 10px 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 80px;
+  position: relative;
+}
+
+.step-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--secondary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.step-name {
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background-color: var(--primary-color);
+  transform: scale(1.2);
+}
+
+.step.active .step-name {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Add a line connecting the steps */
+#step-indicator::before {
+  content: '';
+  position: absolute;
+  top: 25px; /* Adjust this to center the line vertically */
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background-color: var(--secondary-color);
+  z-index: 0;
+}
+
+@media (max-width: 600px) {
+  #step-indicator {
+    justify-content: flex-start;
+    padding: 10px 20px; /* Add horizontal padding for small screens */
+  }
+
+  .step {
+    margin-right: 1rem;
+  }
+
+  /* Adjust the connecting line for small screens */
+  #step-indicator::before {
+    left: 20px;
+    right: 20px;
+  }
+}
+
+nav {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.form-section {
+  display: none;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.form-section.active {
+  display: block;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+#addWorkExperience {
+  background-color: var(--success-color);
+  margin-top: 1rem;
+}
+
+fieldset {
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.download-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+#download-pdf, #download-image {
+  background-color: var(--success-color);
+}
+
+#edit-cv {
+  background-color: var(--accent-color);
+}
+
+footer {
+  text-align: center;
+  padding: 1rem 0;
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  main {
+    padding: 1rem;
+  }
+
+  .download-buttons {
+    flex-direction: column;
+  }
+
+  .download-buttons button {
+    margin-bottom: 1rem;
+  }
+
+  #step-indicator {
+    justify-content: flex-start;
+  }
+
+  .step {
+    margin-right: 1rem;
+  }
+}
+
+/* Add these styles to your existing CSS file */
+
+.color-selection,
+.layout-selection {
+    margin-bottom: 2rem;
+}
+
+.color-options,
+.layout-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.color-option::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.color-option:hover::before,
+.color-option.selected::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.color-option::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    font-size: 24px;
+    transition: transform 0.3s ease;
+}
+
+.color-option.selected::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Color Swatch Selected State */
+.color-swatch.selected {
+    border: 2px solid #000;
+}
+
+/* Layout Option Selected State */
+.layout-option.selected {
+    border-color: #000;
+    background-color: #f0f0f0;
+}
+
+/* For the black color option, use a white checkmark */
+.color-option[data-color="#000000"]::after {
+    color: white;
+}
+
+.work-experience-entry {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.work-experience-entry h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.removeWorkExperience {
+    background-color: var(--accent-color);
+    margin-top: 1rem;
+}
+
+#addWorkExperience {
+    background-color: var(--success-color);
+    margin-top: 1rem;
+}
+
+#addWorkExperience:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Layout selection styles */
+.layout-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.layout-option {
+    background: none;
+    border: 2px solid var(--secondary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.layout-option img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+}
+
+.layout-option:hover,
+.layout-option.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.layout-option.selected {
+    background-color: rgba(52, 152, 219, 0.1); /* Light blue background for selected layout */
+}
+
+/* Loading animation */
+.loading-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color, #3498db);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* CV Layouts */
+.cv-layout {
+    --primary-color: #3498db; /* Default color, will be overridden by JavaScript */
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: white;
+    page-break-inside: avoid;
+}
+
+.cv-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.cv-content {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cv-sidebar {
+    flex: 1;
+    min-width: 200px;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+.cv-main {
+    flex: 2;
+    min-width: 300px;
+    padding: 20px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.cv-layout h1, .cv-layout h2, .cv-layout h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.cv-layout h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.cv-layout ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.work-experience {
+    margin-bottom: 15px;
+}
+
+/* Remove any animations or transitions */
+.cv-layout * {
+    transition: none !important;
+    animation: none !important;
+}
+
+.cv-layout .social-links {
+    margin-top: 10px;
+}
+
+.cv-layout .social-links a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 5px 10px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.cv-layout .social-links a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.cv-layout .projects ul,
+.cv-layout .certifications ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.cv-layout .projects li,
+.cv-layout .certifications li {
+    margin-bottom: 5px;
+}
