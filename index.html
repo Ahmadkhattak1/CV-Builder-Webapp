@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern CV Builder</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         /* Add necessary CSS for visual feedback */
@@ -110,6 +111,13 @@
     </header>
 
     <main>
+        <div id="loading-overlay" style="display:none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Generating your CV...</p>
+            </div>
+        </div>
+
         <form id="cv-form">
             <!-- Step Indicator -->
             <div id="step-indicator">

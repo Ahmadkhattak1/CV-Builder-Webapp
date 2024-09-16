@@ -67,24 +67,31 @@ document.addEventListener('DOMContentLoaded', function() {
     submitButton.addEventListener('click', (e) => {
         e.preventDefault();
         if (validateAllSections()) {
+            currentSection = sections.length - 1;
+            showSection(currentSection);
             showLoading();
             setTimeout(() => {
                 generateCV();
-                showSection(sections.length - 1);
-            }, 3000);
+                hideLoading();
+            }, 2000); // Changed to 2 seconds
         } else {
             alert('Please fill in all required fields before generating your CV.');
         }
     });
 
     function showLoading() {
-        cvPreviewContainer.innerHTML = `
-            <div class="loading-animation">
-                <div class="spinner"></div>
-                <p>Generating your CV...</p>
-            </div>
-        `;
-        cvPreviewContainer.style.display = 'block';
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'flex';
+        }
+        cvPreviewContainer.innerHTML = ''; // Clear any existing content
+    }
+
+    function hideLoading() {
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
     }
 
     function getAllFormData() {
@@ -192,22 +199,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function getProfilePicture() {
+        const profilePictureInput = document.getElementById('profilePicture');
+        return profilePictureInput.files.length > 0 ? URL.createObjectURL(profilePictureInput.files[0]) : '';
+    }
+
     function generateClassicLayout(data) {
+        const profilePicture = getProfilePicture();
         return `
             <div class="cv-layout classic">
                 <div class="cv-header">
+                    ${profilePicture ? `<img src="${profilePicture}" class="profile-picture" alt="Profile Picture">` : ''}
                     <h1>${data.fullName || ''}</h1>
+                    <div class="contact-info">
+                        <div class="contact-line">
+                            ${data.email ? `<a href="mailto:${data.email}" style="color: white;"><i class="fas fa-envelope"></i> ${data.email}</a>` : ''}
+                            ${data.phone ? `<a href="tel:${data.phone}" style="color: white;"><i class="fas fa-phone"></i> ${data.phone}</a>` : ''}
+                            ${data.website ? `<a href="${data.website}" target="_blank" style="color: white;"><i class="fas fa-globe"></i> Website</a>` : ''}
+                        </div>
+                        <div class="contact-line">
+                            ${data.github ? `<a href="${data.github}" target="_blank" style="color: white;"><i class="fab fa-github"></i> GitHub</a>` : ''}
+                            ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" style="color: white;"><i class="fab fa-linkedin"></i> LinkedIn</a>` : ''}
+                        </div>
+                    </div>
                 </div>
                 <div class="cv-body">
-                    <section>
-                        <h2>Contact Information</h2>
-                        ${data.email ? `<p>Email: ${data.email}</p>` : ''}
-                        ${data.phone ? `<p>Phone: ${data.phone}</p>` : ''}
-                        ${data.address ? `<p>Address: ${data.address}</p>` : ''}
-                        ${data.linkedin ? `<p>LinkedIn: ${data.linkedin}</p>` : ''}
-                        ${data.github ? `<p>GitHub: ${data.github}</p>` : ''}
-                        ${data.website ? `<p>Website: ${data.website}</p>` : ''}
-                    </section>
                     ${data.summary ? `<section><h2>Summary</h2><p>${data.summary}</p></section>` : ''}
                     ${generateWorkExperience(data)}
                     ${generateEducation(data)}
@@ -219,11 +235,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function generateModernLayout(data) {
+        const profilePicture = getProfilePicture();
         return `
             <div class="cv-layout modern">
                 <div class="cv-header">
+                    ${profilePicture ? `<img src="${profilePicture}" class="profile-picture" alt="Profile Picture">` : ''}
                     <h1>${data.fullName || ''}</h1>
-                    <p>${[data.email, data.phone, data.address].filter(Boolean).join(' | ')}</p>
+                    <div class="contact-info">
+                        <div class="contact-line">
+                            ${data.email ? `<a href="mailto:${data.email}" style="color: white;"><i class="fas fa-envelope"></i> ${data.email}</a>` : ''}
+                            ${data.phone ? `<a href="tel:${data.phone}" style="color: white;"><i class="fas fa-phone"></i> ${data.phone}</a>` : ''}
+                            ${data.website ? `<a href="${data.website}" target="_blank" style="color: white;"><i class="fas fa-globe"></i> Website</a>` : ''}
+                        </div>
+                        <div class="contact-line">
+                            ${data.github ? `<a href="${data.github}" target="_blank" style="color: white;"><i class="fab fa-github"></i> GitHub</a>` : ''}
+                            ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" style="color: white;"><i class="fab fa-linkedin"></i> LinkedIn</a>` : ''}
+                        </div>
+                    </div>
                 </div>
                 <div class="cv-body">
                     ${data.summary ? `<section><h2>Summary</h2><p>${data.summary}</p></section>` : ''}
@@ -272,24 +300,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function generateAdditionalSections(data) {
         return `
-            ${data.projects && data.projects.length > 0 ? `
-                <section>
-                    <h2>Projects</h2>
-                    <ul>${data.projects.map(project => `<li>${project}</li>`).join('')}</ul>
-                </section>
-            ` : ''}
-            ${data.certifications && data.certifications.length > 0 ? `
-                <section>
-                    <h2>Certifications</h2>
-                    <ul>${data.certifications.map(cert => `<li>${cert}</li>`).join('')}</ul>
-                </section>
-            ` : ''}
-            ${data.languages && data.languages.length > 0 ? `
-                <section>
-                    <h2>Languages</h2>
-                    <ul>${data.languages.map(language => `<li>${language}</li>`).join('')}</ul>
-                </section>
-            ` : ''}
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                ${data.projects && data.projects.length > 0 ? `
+                    <section style="flex: 1; min-width: 300px; margin-right: 20px;">
+                        <h2>Projects</h2>
+                        <ul>${data.projects.map(project => `<li>${project}</li>`).join('')}</ul>
+                    </section>
+                ` : ''}
+                ${data.certifications && data.certifications.length > 0 ? `
+                    <section style="flex: 1; min-width: 300px;">
+                        <h2>Certifications</h2>
+                        <ul>${data.certifications.map(cert => `<li>${cert}</li>`).join('')}</ul>
+                    </section>
+                ` : ''}
+                ${data.languages && data.languages.length > 0 ? `
+                    <section style="flex: 1; min-width: 300px;">
+                        <h2>Languages</h2>
+                        <ul>${data.languages.map(language => `<li>${language}</li>`).join('')}</ul>
+                    </section>
+                ` : ''}
+            </div>
             ${data.volunteer ? `
                 <section>
                     <h2>Volunteer Experience</h2>
