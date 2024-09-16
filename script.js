@@ -373,12 +373,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('download-image').addEventListener('click', () => {
-        html2canvas(cvPreviewContainer).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'my_cv.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        });
+        const cvLayout = cvPreviewContainer.querySelector('.cv-layout');
+        if (cvLayout) {
+            // Store original styles
+            const originalStyles = {
+                transform: cvLayout.style.transform,
+                transformOrigin: cvLayout.style.transformOrigin,
+                width: cvLayout.style.width,
+                height: cvLayout.style.height
+            };
+
+            // Calculate the scale factor
+            const scaleFactor = 2; // Increase this for higher resolution
+            const width = cvLayout.offsetWidth;
+            const height = cvLayout.scrollHeight;
+
+            // Apply scaling transform
+            Object.assign(cvLayout.style, {
+                transform: `scale(${scaleFactor})`,
+                transformOrigin: 'top left',
+                width: `${width}px`,
+                height: `${height}px`
+            });
+
+            html2canvas(cvLayout, {
+                backgroundColor: null,
+                scale: 1, // We're handling scaling manually
+                useCORS: true,
+                logging: false,
+                width: width * scaleFactor,
+                height: height * scaleFactor,
+                windowWidth: width * scaleFactor,
+                windowHeight: height * scaleFactor
+            }).then(canvas => {
+                // Restore original styles
+                Object.assign(cvLayout.style, originalStyles);
+
+                const link = document.createElement('a');
+                link.download = 'my_cv.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(error => {
+                console.error('Error generating image:', error);
+                // Restore original styles in case of error
+                Object.assign(cvLayout.style, originalStyles);
+            });
+        } else {
+            console.error('CV layout element not found');
+        }
     });
 
     // Work experience functionality

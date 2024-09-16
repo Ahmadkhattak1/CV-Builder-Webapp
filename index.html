@@ -31,23 +31,75 @@
 
         .layout-options {
             display: flex;
-            gap: 10px;
+            gap: 30px;
             margin-bottom: 20px;
+            justify-content: center;
         }
 
         .layout-option {
-            padding: 10px;
-            border: 2px solid transparent;
-            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
             cursor: pointer;
-            transition: border 0.3s, background-color 0.3s;
-            text-align: center;
-            width: 100px;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            width: 180px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layout-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(52, 152, 219, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .layout-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .layout-option:hover::before {
+            opacity: 1;
         }
 
         .layout-option.selected {
-            border-color: #000;
-            background-color: #f0f0f0;
+            border-color: var(--primary-color, #3498db);
+            background-color: #f0f8ff;
+        }
+
+        .layout-option img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .layout-option:hover img {
+            transform: scale(1.05);
+        }
+
+        .layout-option span {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .layout-option:hover span {
+            color: var(--primary-color, #3498db);
         }
 
         /* Additional styles for form sections */
@@ -249,9 +301,11 @@
                         <div class="layout-options">
                             <button type="button" class="layout-option" data-layout="layout1">
                                 <img src="images/layout1-icon.png" alt="Layout 1">
+                                <span>Classic</span>
                             </button>
                             <button type="button" class="layout-option" data-layout="layout2">
                                 <img src="images/layout2-icon.png" alt="Layout 2">
+                                <span>Modern</span>
                             </button>
                         </div>
                     </div>
