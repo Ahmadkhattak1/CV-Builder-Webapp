@@ -269,9 +269,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <section>
                 <h2>Work Experience</h2>
-                ${data.workExperience.map(experience => 
-                    `<li><strong>${experience.job}</strong> at <em>${experience.company}</em> ${experience.duration ? `(${experience.duration})` : ''}</li>`
-                ).join('')}
+                <ul>
+                    ${data.workExperience.map(experience => 
+                        `<li><strong>${experience.job}</strong> at <em>${experience.company}</em> ${experience.duration ? `(${experience.duration})` : ''}</li>`
+                    ).join('')}
+                </ul>
             </section>
         `;
     }
@@ -281,9 +283,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <section>
                 <h2>Education</h2>
-                ${data.education.map(edu => 
-                    `<li><strong>${edu.degree}</strong> from <em>${edu.institution}</em> ${edu.graduationYear ? `(${edu.graduationYear})` : ''}</li>`
-                ).join('')}
+                <ul>
+                    ${data.education.map(edu => 
+                        `<li><strong>${edu.degree}</strong> from <em>${edu.institution}</em> ${edu.graduationYear ? `(${edu.graduationYear})` : ''}</li>`
+                    ).join('')}
+                </ul>
             </section>
         `;
     }
@@ -349,78 +353,117 @@ document.addEventListener('DOMContentLoaded', function() {
         showSection(currentSection);
     });
 
-    document.getElementById('download-pdf').addEventListener('click', () => {
-        const element = cvPreviewContainer.querySelector('.cv-layout');
+    // Improved PDF Generation and Download Functionality
+    document.getElementById('download-pdf').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const element = document.querySelector('.cv-layout');
+        
+        // Show a loading indicator
+        showLoading();
+
         const opt = {
-            margin: [10, 10, 10, 10],
-            filename: 'my_cv.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            margin:       [10, 10, 10, 10], // top, left, bottom, right
+            filename:     'my_cv.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true,
+                logging: false,
+                scrollY: 0, // Ensures the page starts at the top
+                windowWidth: document.documentElement.scrollWidth, // Helps with wider layouts
+                windowHeight: document.documentElement.scrollHeight
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['css', 'avoid-all']} // Ensures CSS page breaks are respected
         };
 
-        const originalStyles = {
-            boxShadow: element.style.boxShadow,
-            maxWidth: element.style.maxWidth
-        };
-        element.style.boxShadow = 'none';
-        element.style.maxWidth = '210mm';
+        // Apply additional CSS for PDF rendering
+        const pdfStyles = document.createElement('style');
+        pdfStyles.innerHTML = `
+            @media print {
+                /* Ensure the CV layout takes full width */
+                .cv-layout {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                
+                /* Adjust sections to fit within PDF pages */
+                section {
+                    page-break-inside: avoid;
+                }
 
-        html2pdf().from(element).set(opt).save().then(() => {
-            Object.assign(element.style, originalStyles);
+                /* Optional: Customize fonts and sizes for PDF */
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                }
+
+                h1, h2, h3 {
+                    page-break-after: avoid;
+                }
+
+                /* Remove any flex layout for PDF to prevent alignment issues */
+                .cv-body, .contact-info, .contact-line, .cv-header {
+                    display: block !important;
+                }
+
+                /* Adjust padding and margins */
+                .cv-header, .cv-body {
+                    padding: 10mm;
+                }
+
+                .profile-picture {
+                    max-width: 100px;
+                    height: auto;
+                    display: block;
+                    margin-bottom: 10px;
+                }
+            }
+        `;
+        document.head.appendChild(pdfStyles);
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            hideLoading();
+            // Remove the injected PDF styles after generation
+            document.head.removeChild(pdfStyles);
+        }).catch((error) => {
+            console.error("Error generating PDF:", error);
+            hideLoading();
+            alert("Failed to generate PDF. Please try again.");
+            // Remove the injected PDF styles in case of an error
+            document.head.removeChild(pdfStyles);
         });
     });
 
     document.getElementById('download-image').addEventListener('click', () => {
-        const cvLayout = cvPreviewContainer.querySelector('.cv-layout');
-        if (cvLayout) {
-            // Store original styles
-            const originalStyles = {
-                transform: cvLayout.style.transform,
-                transformOrigin: cvLayout.style.transformOrigin,
-                width: cvLayout.style.width,
-                height: cvLayout.style.height
-            };
+        const element = cvPreviewContainer.querySelector('.cv-layout');
+        
+        // Set up options for html2canvas
+        const options = {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: element.offsetWidth,
+            height: element.scrollHeight
+        };
 
-            // Calculate the scale factor
-            const scaleFactor = 2; // Increase this for higher resolution
-            const width = cvLayout.offsetWidth;
-            const height = cvLayout.scrollHeight;
-
-            // Apply scaling transform
-            Object.assign(cvLayout.style, {
-                transform: `scale(${scaleFactor})`,
-                transformOrigin: 'top left',
-                width: `${width}px`,
-                height: `${height}px`
-            });
-
-            html2canvas(cvLayout, {
-                backgroundColor: null,
-                scale: 1, // We're handling scaling manually
-                useCORS: true,
-                logging: false,
-                width: width * scaleFactor,
-                height: height * scaleFactor,
-                windowWidth: width * scaleFactor,
-                windowHeight: height * scaleFactor
-            }).then(canvas => {
-                // Restore original styles
-                Object.assign(cvLayout.style, originalStyles);
-
+        // Use html2canvas to create an image
+        html2canvas(element, options).then(canvas => {
+            // Convert canvas to blob
+            canvas.toBlob(blob => {
+                // Create a download link and trigger the download
+                const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
+                link.href = url;
                 link.download = 'my_cv.png';
-                link.href = canvas.toDataURL('image/png');
                 link.click();
-            }).catch(error => {
-                console.error('Error generating image:', error);
-                // Restore original styles in case of error
-                Object.assign(cvLayout.style, originalStyles);
-            });
-        } else {
-            console.error('CV layout element not found');
-        }
+                
+                // Clean up
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        });
     });
 
     // Work experience functionality
@@ -503,3 +546,145 @@ document.addEventListener('DOMContentLoaded', function() {
 
     showSection(currentSection);
 });
+
+    document.getElementById('edit-cv').addEventListener('click', () => {
+        currentSection = 0;
+        showSection(currentSection);
+    });
+
+    // Fixed PDF Generation and Download Functionality
+    document.getElementById('download-pdf').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const element = document.querySelector('.cv-layout');
+        
+        // Show a loading indicator
+        showLoading();
+
+        const opt = {
+            margin:       10,
+            filename:     'my_cv.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            hideLoading();
+        }).catch((error) => {
+            console.error("Error generating PDF:", error);
+            hideLoading();
+            alert("Failed to generate PDF. Please try again.");
+        });
+    });
+
+    document.getElementById('download-image').addEventListener('click', () => {
+        const element = cvPreviewContainer.querySelector('.cv-layout');
+        
+        // Set up options for html2canvas
+        const options = {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: element.offsetWidth,
+            height: element.scrollHeight
+        };
+
+        // Use html2canvas to create an image
+        html2canvas(element, options).then(canvas => {
+            // Convert canvas to blob
+            canvas.toBlob(blob => {
+                // Create a download link and trigger the download
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'my_cv.png';
+                link.click();
+                
+                // Clean up
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        });
+    });
+
+    // Work experience functionality
+    const addWorkExperienceButton = document.getElementById('addWorkExperience');
+    const workExperienceEntries = document.getElementById('workExperienceEntries');
+    let workExperienceCount = 0;
+
+    addWorkExperienceButton.addEventListener('click', () => {
+        if (workExperienceCount < 4) {
+            addWorkExperienceEntry();
+        }
+        if (workExperienceCount === 4) {
+            addWorkExperienceButton.disabled = true;
+        }
+    });
+
+    function addWorkExperienceEntry() {
+        workExperienceCount++;
+        const entryId = `workExperience${workExperienceCount}`;
+        const entry = document.createElement('div');
+        entry.className = 'work-experience-entry';
+        entry.innerHTML = `
+            <h3>Company ${workExperienceCount}</h3>
+            <input type="text" id="${entryId}Company" name="company[]" placeholder="Company" required>
+            <input type="text" id="${entryId}Job" name="job[]" placeholder="Job Title" required>
+            <input type="text" id="${entryId}Duration" name="duration[]" placeholder="Duration" required>
+            <button type="button" class="removeWorkExperience">Remove</button>
+        `;
+        workExperienceEntries.appendChild(entry);
+
+        entry.querySelector('.removeWorkExperience').addEventListener('click', () => {
+            workExperienceEntries.removeChild(entry);
+            workExperienceCount--;
+            addWorkExperienceButton.disabled = false;
+        });
+    }
+
+    // Education functionality
+    const addEducationButton = document.getElementById('addEducation');
+    const educationEntries = document.getElementById('educationEntries');
+    let educationCount = 0;
+
+    addEducationButton.addEventListener('click', () => {
+        if (educationCount < 4) {
+            addEducationEntry();
+        }
+        if (educationCount === 4) {
+            addEducationButton.disabled = true;
+        }
+    });
+
+    function addEducationEntry() {
+        educationCount++;
+        const entryId = `education${educationCount}`;
+        const entry = document.createElement('div');
+        entry.className = 'education-entry';
+        entry.innerHTML = `
+            <h3>Education ${educationCount}</h3>
+            <input type="text" id="${entryId}Institution" name="institution[]" placeholder="Institution" required>
+            <input type="text" id="${entryId}Degree" name="degree[]" placeholder="Degree" required>
+            <input type="text" id="${entryId}GraduationYear" name="graduationYear[]" placeholder="Graduation Year" required>
+            <button type="button" class="removeEducation">Remove</button>
+        `;
+        educationEntries.appendChild(entry);
+
+        entry.querySelector('.removeEducation').addEventListener('click', () => {
+            educationEntries.removeChild(entry);
+            educationCount--;
+            addEducationButton.disabled = false;
+        });
+    }
+
+    // Ensure that a default selection is set for color and layout
+    if (colorOptions.length > 0) {
+        colorOptions[0].classList.add('selected');
+    }
+    if (layoutOptions.length > 0) {
+        layoutOptions[0].classList.add('selected');
+    }
+
+    showSection(currentSection);
+
